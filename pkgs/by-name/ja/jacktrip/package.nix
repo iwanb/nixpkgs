@@ -11,18 +11,20 @@
   python3,
   rtaudio,
   ninja,
+  versionCheckHook,
+  nix-update-script,
 }:
 
-stdenv.mkDerivation rec {
-  version = "2.4.1";
+stdenv.mkDerivation (finalAttrs: {
+  version = "2.5.0";
   pname = "jacktrip";
 
   src = fetchFromGitHub {
     owner = "jacktrip";
     repo = "jacktrip";
-    rev = "v${version}";
+    tag = "v${finalAttrs.version}";
     fetchSubmodules = true;
-    hash = "sha256-KxpoY7g5oKN2j8rOcFcJf/29xTELxhBn5KBvKB5kL8M=";
+    hash = "sha256-qtFVH7M9QJAYeytDJW4Llk+c8fj+wv3eoJxNgEVw1SA=";
   };
 
   preConfigure = ''
@@ -56,16 +58,27 @@ stdenv.mkDerivation rec {
 
   qmakeFlags = [ "jacktrip.pro" ];
 
-  meta = with lib; {
+  nativeInstallCheckInputs = [
+    versionCheckHook
+  ];
+  versionCheckProgramArg = [ "--version" ];
+  doInstallCheck = true;
+
+  passthru = {
+    updateScript = nix-update-script { };
+  };
+
+  meta = {
     description = "Multi-machine audio network performance over the Internet";
-    mainProgram = "jacktrip";
     homepage = "https://jacktrip.github.io/jacktrip/";
-    license = with licenses; [
+    changelog = "https://github.com/jacktrip/jacktrip/releases/tag/v${finalAttrs.version}";
+    license = with lib.licenses; [
       gpl3
       lgpl3
       mit
     ];
-    maintainers = [ maintainers.iwanb ];
-    platforms = platforms.linux;
+    maintainers = with lib.maintainers; [ iwanb ];
+    platforms = lib.platforms.linux;
+    mainProgram = "jacktrip";
   };
-}
+})
