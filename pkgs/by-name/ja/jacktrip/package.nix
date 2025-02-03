@@ -16,7 +16,7 @@
 }:
 
 stdenv.mkDerivation (finalAttrs: {
-  version = "2.5.0";
+  version = "2.5.1";
   pname = "jacktrip";
 
   src = fetchFromGitHub {
@@ -24,7 +24,7 @@ stdenv.mkDerivation (finalAttrs: {
     repo = "jacktrip";
     tag = "v${finalAttrs.version}";
     fetchSubmodules = true;
-    hash = "sha256-qtFVH7M9QJAYeytDJW4Llk+c8fj+wv3eoJxNgEVw1SA=";
+    hash = "sha256-WXUqMKCfZ/ZQLKpfye5cwju4IynitcBPEJwlQ2/+aoo=";
   };
 
   preConfigure = ''
@@ -55,6 +55,10 @@ stdenv.mkDerivation (finalAttrs: {
     qt6.wrapQtAppsHook
     pkg-config
   ];
+
+  # Can't link to libsamplerate
+  # https://github.com/jacktrip/jacktrip/issues/1380
+  mesonFlags = [ "-Dlibsamplerate=disabled" ];
 
   qmakeFlags = [ "jacktrip.pro" ];
 
